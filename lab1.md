@@ -236,6 +236,9 @@ Próbálja ki a következő egyszerű parancssorozatot:
 Hello, World!
 >>> 2 + 3
 5
+
+>>> 5 + 5
+
 ```
 
 Hasznos funkciók a REPL-ben
