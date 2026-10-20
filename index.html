@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mark Wendler</title>
+<meta name="description" content="Mark Wendler: motor control, current sensing and embedded systems. Projects, tools and recent GitHub activity.">
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #fff; --text: #1b1f24; --muted: #5b6573;
+    --line: #dfe3e8; --accent: #0b6bcb; --accent-soft: #e6f0fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --card: #161b22; --text: #e6e9ee; --muted: #9aa5b3;
+      --line: #2a313b; --accent: #58a6ff; --accent-soft: #14253a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+  header { padding: 56px 0 24px; }
+  h1 { margin: 0 0 8px; font-size: 2.2rem; letter-spacing: -.02em; }
+  .tag { color: var(--muted); max-width: 640px; margin: 0 0 16px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .links a {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 6px 12px; border-radius: 999px; font-size: .9rem;
+  }
+  h2 { font-size: 1.1rem; margin: 40px 0 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .card h3 { margin: 0; font-size: 1.1rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .95rem; flex: 1; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 2px 8px; font-size: .78rem; }
+  .actions { display: flex; gap: 14px; font-size: .92rem; font-weight: 600; }
+  ul.feed { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  ul.feed li { padding: 12px 16px; border-top: 1px solid var(--line); display: flex; gap: 12px; justify-content: space-between; align-items: baseline; }
+  ul.feed li:first-child { border-top: 0; }
+  .when { color: var(--muted); font-size: .82rem; white-space: nowrap; }
+  .msg { color: var(--muted); font-size: .88rem; display: block; }
+  .note { color: var(--muted); font-size: .9rem; }
+  footer { padding: 40px 0 56px; color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mark Wendler</h1>
+    <p class="tag">PhD researcher at Óbuda University working on motor control, shunt-based current sensing and embedded systems. This page collects my projects, tools and recent activity.</p>
+    <nav class="links">
+      <a href="https://github.com/MarkWendler">GitHub</a>
+      <a href="mailto:mark.wendler@phd.uni-obuda.hu">Email</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Featured projects</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>Web Bluetooth Motor Controller</h3>
+        <p>Browser-based BLE controller for a fan/motor demo on the Silicon Labs MG24: three speed modes, live telemetry and anomaly-detection status over Web Bluetooth SPP.</p>
+        <div class="chips"><span class="chip">React</span><span class="chip">Web Bluetooth</span><span class="chip">MG24</span></div>
+        <div class="actions">
+          <a href="https://markwendler.github.io/motor-ble-controller/">Open app</a>
+          <a href="https://github.com/MarkWendler/motor-ble-controller">Source</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>ADC Shunt Acquisition &amp; Limits Calculator</h3>
+        <p>Interactive calculator for ADC acquisition time versus switching frequency and the usable modulation index in single- and dual-shunt current reconstruction for PMSM FOC.</p>
+        <div class="chips"><span class="chip">FOC</span><span class="chip">SVPWM</span><span class="chip">Current sensing</span></div>
+        <div class="actions">
+          <a href="https://markwendler.github.io/foc-shunt-sensing/">Open calculator</a>
+          <a href="https://github.com/MarkWendler/foc-shunt-sensing">Source &amp; papers</a>
+        </div>
+      </article>
+    </div>
+
+    <h2>Recent activity</h2>
+    <ul class="feed" id="feed"><li><span>Loading from GitHub…</span></li></ul>
+    <p class="note" id="feed-note"></p>
+
+    <h2>Repositories</h2>
+    <div class="grid" id="repos"></div>
+  </main>
+
+  <footer>Static page hosted on GitHub Pages. Activity is fetched live from the public GitHub API.</footer>
+</div>
+
+<script>
+const USER = "MarkWendler";
+const API = "https://api.github.com";
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function ago(iso) {
+  const s = (Date.now() - new Date(iso)) / 1000;
+  const units = [["y", 31536000], ["mo", 2592000], ["d", 86400], ["h", 3600], ["m", 60]];
+  for (const [u, n] of units) if (s >= n) return Math.floor(s / n) + u + " ago";
+  return "just now";
+}
+
+function describe(ev) {
+  const repo = ev.repo.name, url = "https://github.com/" + repo;
+  const link = `<a href="${url}">${esc(repo)}</a>`;
+  const p = ev.payload;
+  switch (ev.type) {
+    case "PushEvent": {
+      const c = (p.commits || []).slice(-1)[0];
+      const n = p.size || (p.commits || []).length;
+      return [`Pushed ${n} commit${n === 1 ? "" : "s"} to ${link}`, c ? c.message.split("\n")[0] : ""];
+    }
+    case "CreateEvent": return [`Created ${esc(p.ref_type)}${p.ref ? " " + esc(p.ref) : ""} in ${link}`, ""];
+    case "PullRequestEvent": return [`${esc(p.action)} pull request in ${link}`, p.pull_request.title];
+    case "IssuesEvent": return [`${esc(p.action)} issue in ${link}`, p.issue.title];
+    case "ReleaseEvent": return [`Released ${esc(p.release.tag_name)} of ${link}`, ""];
+    case "WatchEvent": return [`Starred ${link}`, ""];
+    case "ForkEvent": return [`Forked ${link}`, ""];
+    default: return null;
+  }
+}
+
+async function get(path) {
+  const r = await fetch(API + path, { headers: { Accept: "application/vnd.github+json" } });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+(async () => {
+  const feed = document.getElementById("feed");
+  try {
+    const events = await get(`/users/${USER}/events/public?per_page=50`);
+    const rows = events.map(e => [e, describe(e)]).filter(([, d]) => d).slice(0, 8);
+    feed.innerHTML = rows.length ? rows.map(([e, [title, msg]]) =>
+      `<li><span>${title}${msg ? `<span class="msg">${esc(msg)}</span>` : ""}</span><span class="when">${ago(e.created_at)}</span></li>`
+    ).join("") : "<li><span>No recent public activity.</span></li>";
+  } catch {
+    feed.innerHTML = `<li><span>Could not load activity. See <a href="https://github.com/${USER}">my GitHub profile</a>.</span></li>`;
+  }
+
+  const grid = document.getElementById("repos");
+  try {
+    const repos = (await get(`/users/${USER}/repos?sort=pushed&per_page=30`))
+      .filter(r => !r.fork && r.name.toLowerCase() !== (USER + ".github.io").toLowerCase() && r.name !== USER)
+      .slice(0, 6);
+    grid.innerHTML = repos.map(r => `
+      <article class="card">
+        <h3><a href="${esc(r.html_url)}">${esc(r.name)}</a></h3>
+        <p>${esc(r.description || "No description yet.")}</p>
+        <div class="chips">${r.language ? `<span class="chip">${esc(r.language)}</span>` : ""}<span class="chip">updated ${ago(r.pushed_at)}</span></div>
+      </article>`).join("");
+  } catch {
+    grid.innerHTML = "";
+  }
+})();
+</script>
+</body>
+</html>
